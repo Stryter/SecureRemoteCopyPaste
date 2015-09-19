@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 @Embeddable
 public class ReferenceCode extends Base24Code {
-    public static final short SES_ID_IDENTIFIER_PART_LEN = (short) 3;
-    public static final short SES_ID_UNIQUE_PART_LEN = (short) 7;
+    public static final short ID_IDENTIFIER_PART_LEN = (short) 3;
+    public static final short ID_UNIQUE_PART_LEN = (short) 7;
 
     // The reference code given to the applicant
     private String referenceCode;
@@ -17,8 +17,8 @@ public class ReferenceCode extends Base24Code {
 
     // ReferenceCodes must match this regular expression
     private static final String matchingRegex = "[A-Z]{"
-            + SES_ID_IDENTIFIER_PART_LEN + "}-?" + sesCodeRegexMatch + "{"
-            + SES_ID_UNIQUE_PART_LEN + "}";
+            + ID_IDENTIFIER_PART_LEN + "}-?" + codeRegexMatch + "{"
+            + ID_UNIQUE_PART_LEN + "}";
 
     private static volatile Pattern matchingPatt = null;
 
@@ -37,7 +37,7 @@ public class ReferenceCode extends Base24Code {
         StringBuilder buf = new StringBuilder();
 
         buf.append(idPrefix);
-        toBase24Field(buf, uniquePart, SES_ID_UNIQUE_PART_LEN);
+        toBase24Field(buf, uniquePart, ID_UNIQUE_PART_LEN);
 
         this.referenceCode = buf.toString();
 
@@ -53,8 +53,8 @@ public class ReferenceCode extends Base24Code {
     }
 
     public String getDisplayValue() {
-        return referenceCode.substring(0, SES_ID_IDENTIFIER_PART_LEN) + "-"
-                + referenceCode.substring(SES_ID_IDENTIFIER_PART_LEN);
+        return referenceCode.substring(0, ID_IDENTIFIER_PART_LEN) + "-"
+                + referenceCode.substring(ID_IDENTIFIER_PART_LEN);
     }
 
     public static Pattern getRegex() {

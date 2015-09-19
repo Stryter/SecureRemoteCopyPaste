@@ -6,13 +6,13 @@ import java.util.Arrays;
  * Created by Josh on 9/19/2015.
  */
 public class Base24Code {
-    // public final static char[] sesCodeChars = "123456789BFGHJKNQRSTVXYZ"
+    // public final static char[] codeChars = "123456789BFGHJKNQRSTVXYZ"
     // .toCharArray();
-    public final static char[] sesCodeChars = "B81KZ2J6FG39NHQV74TRXYS5"
+    public final static char[] codeChars = "B81KZ2J6FG39NHQV74TRXYS5"
             .toCharArray();
-    public final static String sesCodeRegexMatch = "[1-9BFGHJKNQRSTVXYZ]";
+    public final static String codeRegexMatch = "[1-9BFGHJKNQRSTVXYZ]";
 
-    public final static short CODE_CHARS_CT = (short) (sesCodeChars.length);
+    public final static short CODE_CHARS_CT = (short) (codeChars.length);
 
     /***
      * Convert a field to base 24
@@ -32,13 +32,13 @@ public class Base24Code {
         int endPos = startPos + fieldWidth - 1;
 
         while ((value >= CODE_CHARS_CT) && (fieldWidth > 0)) {
-            dest.append(sesCodeChars[(int) (value % CODE_CHARS_CT)]);
+            dest.append(codeChars[(int) (value % CODE_CHARS_CT)]);
             fieldWidth--;
             value /= CODE_CHARS_CT;
         }
 
         while (fieldWidth > 0) {
-            dest.append(sesCodeChars[(int) value]);
+            dest.append(codeChars[(int) value]);
             value = 0;
             fieldWidth--;
         }
@@ -80,7 +80,7 @@ public class Base24Code {
             int chValue;
 
             accum *= CODE_CHARS_CT;
-            chValue = Arrays.binarySearch(sesCodeChars, chSeq.charAt(offs));
+            chValue = Arrays.binarySearch(codeChars, chSeq.charAt(offs));
             if (chValue < 0) {
                 throw new IllegalArgumentException("unparseable code");
             }
