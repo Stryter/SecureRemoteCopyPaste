@@ -6,6 +6,7 @@ import srcp.repositories.UserRepository;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
@@ -13,8 +14,9 @@ import java.time.Instant;
  * Created by Josh on 9/18/2015.
  */
 @Entity
-public class User extends AbstractAuditable<String, Long> {
+public class User extends AbstractAuditable<User, Long> {
 
+    @NotNull
     @Column(unique = true)
     private String userId;
 
@@ -31,6 +33,7 @@ public class User extends AbstractAuditable<String, Long> {
     @Column
     private Instant registrationTime;
 
+    @Transient
     private UserRepository userRepository;
 
     private User() {}
@@ -64,11 +67,6 @@ public class User extends AbstractAuditable<String, Long> {
 
         public Builder() {
             user = new User();
-        }
-
-        public Builder userId(String userId) {
-            user.userId = userId;
-            return this;
         }
 
         public Builder email(String email) {

@@ -7,4 +7,5 @@ import srcp.domain.User;
  * Created by Josh on 9/18/2015.
  */
 public interface UserRepository extends CrudRepository<User, Long> {
+    User findByEmail(String email);
 }
