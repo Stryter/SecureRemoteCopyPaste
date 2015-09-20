@@ -2,11 +2,13 @@ package srcp.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import srcp.domain.ReferenceCodePool;
 import srcp.domain.vo.ReferenceCode;
 import srcp.exceptions.ReferenceCodeException;
+import srcp.repositories.ReferenceCodePoolRepository;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -29,6 +31,8 @@ public class ReferenceCodeGenerator {
 
     @PersistenceContext
     protected EntityManager entityManager;
+    @Autowired
+    private ReferenceCodePoolRepository referenceCodePoolRepository;
 
     /**
      * This hash table uses a ReferencecodePool object as its key. The
@@ -97,15 +101,8 @@ public class ReferenceCodeGenerator {
         long numberToLoad = CACHE_SIZE - cache.size();
 
         try {
-            // start a transaction
-            entityManager.joinTransaction();
-            tx = (Transaction)entityManager.getTransaction();
-
             // load the ReferenceCodePool
-            String hql = "SELECT s FROM ReferenceCodePool s WHERE s.poolName = :pool";
-            Query query = entityManager.createQuery(hql);
-            query.setParameter("pool", poolName);
-            ReferenceCodePool pool = (ReferenceCodePool) query.getSingleResult();
+            ReferenceCodePool pool = referenceCodePoolRepository.findByPoolName(poolName);
 
             // make sure the ReferenceCodePool actually existed
             if (pool == null) {
@@ -125,8 +122,7 @@ public class ReferenceCodeGenerator {
             long newNextSeq = Math
                     .min(endBoundary + 1, beginSeq + numberToLoad);
             pool.setNextSequence(newNextSeq);
-            entityManager.persist(pool);
-            entityManager.flush();
+            referenceCodePoolRepository.saveAndFlush(pool);
 
             // now populate the cache vector
             while (beginSeq < newNextSeq) {
@@ -135,13 +131,6 @@ public class ReferenceCodeGenerator {
 
         } catch (Exception e1) {
             // roll back our transaction
-            if (tx != null) {
-                try {
-                    tx.rollback();
-                } catch (SystemException e2) {
-                    logger.error("" + e2, e2);
-                }
-            }
             if (e1 instanceof ReferenceCodeException) {
                 throw (ReferenceCodeException) e1;
             }
@@ -149,19 +138,6 @@ public class ReferenceCodeGenerator {
             String msg = "failed to fetch sequence for ReferenceCodePool ["
                     + poolName + "]";
             throw new ReferenceCodeException(msg, e1);
-        }
-
-        // don't forget to commit the transaction!
-        try {
-            tx.commit();
-        } catch (RollbackException e) {
-            e.printStackTrace();
-        } catch (HeuristicMixedException e) {
-            e.printStackTrace();
-        } catch (HeuristicRollbackException e) {
-            e.printStackTrace();
-        } catch (SystemException e) {
-            e.printStackTrace();
         }
 
     }// end reloadReferenceCodeCache

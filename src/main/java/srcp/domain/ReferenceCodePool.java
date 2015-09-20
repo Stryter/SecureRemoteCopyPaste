@@ -1,8 +1,12 @@
 package srcp.domain;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.jpa.domain.AbstractAuditable;
 import srcp.repositories.ReferenceCodePoolRepository;
+import srcp.services.UserRegistrationService;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -10,9 +14,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Entity
-public class ReferenceCodePool extends AbstractAuditable<User, Long> {
+@Configurable
+public class ReferenceCodePool extends AbstractAuditable<ReferenceCodePool, Long> {
     @Transient
+    @Autowired
     private ReferenceCodePoolRepository referenceCodePoolRepository;
+
+    @Transient
+    @Autowired
+    private UserRegistrationService userRegistrationService;
 
     @SuppressWarnings("unused")
     private ReferenceCodePool() {
@@ -34,7 +44,7 @@ public class ReferenceCodePool extends AbstractAuditable<User, Long> {
     @NotNull
     private Long lastSequence = 4586471423L;
 
-    protected ReferenceCodePool persist() {
+    public ReferenceCodePool save() {
         return referenceCodePoolRepository.save(this);
     }
 
@@ -67,8 +77,17 @@ public class ReferenceCodePool extends AbstractAuditable<User, Long> {
             pool.poolName = poolName;
         }
 
+        public Builder(String poolName, ReferenceCodePoolRepository repository) {
+            pool = new ReferenceCodePool(repository);
+            pool.poolName = poolName;
+        }
+
         public ReferenceCodePool build() {
-            return pool.persist();
+            return pool;
+        }
+
+        public ReferenceCodePool buildAndPersist() {
+            return pool.save();
         }
     }
 }
